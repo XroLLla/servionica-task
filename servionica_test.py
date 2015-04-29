@@ -21,6 +21,32 @@ PATH_TO_OUTPUT_FILE = args.path_to_file
 # PATH_TO_OUTPUT_FILE = "output.txt"
 
 
+def get_qcow_file_dict(qcowfile):
+    file_dictionary = {}
+    file_name = qcowfile
+    file_dictionary['filename'] = file_name
+    size = os.path.getsize(qcowfile)
+    file_dictionary['size'] = size
+    with open(qcowfile, "rb") as binary_file:
+        virtual_size = get_info(binary_file, 24, 8, '>Q')
+        file_dictionary['virtualsize'] = virtual_size
+        is_bf = check_bf_exist(binary_file)
+        if is_bf:
+            backing_file_name = get_bf_name(binary_file, is_bf)
+            file_dictionary['backing_file'] = backing_file_name
+        is_snapshots = check_snapshots_exist(binary_file)
+        if is_snapshots:
+            file_dictionary['snapshots'] = []
+            count_of_snapshots = is_snapshots
+            snapshots_offset = get_info(
+                binary_file, 64, 8, '>Q')
+            while count_of_snapshots > 0:
+                snapshot_dict, snapshots_offset = snapshots_info(binary_file, snapshots_offset)
+                file_dictionary['snapshots'].append(snapshot_dict)
+                count_of_snapshots -= 1
+    return file_dictionary
+
+
 def get_info(b_fileqcow, start_position, cout_of_reading_bytes, unpack_format):
     b_fileqcow.seek(start_position, 0)
     return struct.unpack(
@@ -61,33 +87,12 @@ def walk_through_tree_of_catalogue_qcow2(in_cotalogue, out_file):
             file_clean.close()
             for d, dirs, files in os.walk(PATH_TO_INPUT_CATOLOGUE):
                 for f in files:
-                    if str(os.path.splitext(f)[1]) != '':
-                        with open(os.path.join(d, f), "rb") as bf:
-                            print "\n\nfile name : {}".format(f)
-                            byte = bf.read(3)
-                            if byte == "QFI":
-                                size = os.path.getsize(os.path.join(d, f))
-                                print "size of file = {}".format(size)
-                                virtual_size = get_info(bf, 24, 8, '>Q')
-                                print "virtual size = {}".format(virtual_size)
-                                is_bf = check_bf_exist(bf)
-                                if is_bf:
-                                    backing_file_name = get_bf_name(bf, is_bf)
-                                    print "backing file name = {}".format(
-                                        backing_file_name)
-                                else:
-                                    print "No backing file"
-                                is_snapshots = check_snapshots_exist(bf)
-                                if is_snapshots:
-                                    print "There are {} snapshots".format(
-                                        is_snapshots)
-                                    snapshots_offset = get_info(
-                                        bf, 64, 8, '>Q')
-                                    while is_snapshots > 0:
-                                        snapshots_offset = snapshots_info(bf, snapshots_offset)
-                                        is_snapshots -= 1
-                                else:
-                                    print "there is no snapshots"
+                    with open(os.path.join(d, f), "rb") as binary_file:
+                        byte = binary_file.read(3)
+                        if byte == "QFI":
+                            fileqcow = os.path.join(d, f)
+                            qcow_file_dict = get_qcow_file_dict(fileqcow)
+                            print (qcow_file_dict)
         else:
             print "Wrong path to the file"
     else:
@@ -101,17 +106,28 @@ def snapshots_info(b_fileqcow, snapshots_offset):
     len_name = get_info(b_fileqcow, snapshots_offset + 14, 2, '>H')
     snapshots_size = get_info(b_fileqcow, snapshots_offset + 32, 4, '>I')
     extra_data_size = get_info(b_fileqcow, snapshots_offset + 36, 4, '>I')
-    snapshots_id = get_info(b_fileqcow, snapshots_offset + 40 + extra_data_size, len_id, str(len_id)+'s')
-    snapshots_name = get_info(b_fileqcow, snapshots_offset + 40 + extra_data_size + len_id, len_name, str(len_name)+'s')
-    print "snapshots_id = {}".format(snapshots_id)
-    print "snapshots_name = {}".format(snapshots_name)
-    print "snapshots_size = {}".format(snapshots_size)
-    len_of_this_snapshot = snapshots_offset + 40 + extra_data_size + len_id + len_name
-    if len_of_this_snapshot % 8 != 0:
-        len_of_this_snapshot = len_of_this_snapshot + (8 - (len_of_this_snapshot % 8))
-    return len_of_this_snapshot
+    snapshots_id = get_info(
+                            b_fileqcow,
+                            snapshots_offset + 40 + extra_data_size,
+                            len_id, str(len_id) + 's'
+                            )
+    snapshots_name = get_info(
+                                b_fileqcow,
+                                snapshots_offset + 40 + extra_data_size + len_id,
+                                len_name, str(len_name) + 's'
+                                )
+    len_of_ss = snapshots_offset + 40 + extra_data_size + len_id + len_name
+    if len_of_ss % 8 != 0:
+        len_of_ss = len_of_ss + (8 - (len_of_ss % 8))
+    snap_dict = {
+                 'id': snapshots_id,
+                 'name': snapshots_name,
+                 'virtual_size': snapshots_size
+                }
+    return (snap_dict, len_of_ss)
 
-def write_information_to_output_file(file_from, file_to):
+
+def write_information_to_output_file(file_to):
 
     with open(file_from) as file_open_temp:
         content = file_open_temp.readlines()
