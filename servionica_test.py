@@ -83,7 +83,9 @@ def walk_through_tree_of_catalogue_qcow2(in_cotalogue, out_file):
                                         is_snapshots)
                                     snapshots_offset = get_info(
                                         bf, 64, 8, '>Q')
-
+                                    while is_snapshots > 0:
+                                        snapshots_offset = snapshots_info(bf, snapshots_offset)
+                                        is_snapshots -= 1
                                 else:
                                     print "there is no snapshots"
         else:
@@ -92,8 +94,22 @@ def walk_through_tree_of_catalogue_qcow2(in_cotalogue, out_file):
         print "No such directory"
 
 
-def snapshots_info()
+def snapshots_info(b_fileqcow, snapshots_offset):
 
+    offset = get_info(b_fileqcow, snapshots_offset, 8, '>Q')
+    len_id = get_info(b_fileqcow, snapshots_offset + 12, 2, '>H')
+    len_name = get_info(b_fileqcow, snapshots_offset + 14, 2, '>H')
+    snapshots_size = get_info(b_fileqcow, snapshots_offset + 32, 4, '>I')
+    extra_data_size = get_info(b_fileqcow, snapshots_offset + 36, 4, '>I')
+    snapshots_id = get_info(b_fileqcow, snapshots_offset + 40 + extra_data_size, len_id, str(len_id)+'s')
+    snapshots_name = get_info(b_fileqcow, snapshots_offset + 40 + extra_data_size + len_id, len_name, str(len_name)+'s')
+    print "snapshots_id = {}".format(snapshots_id)
+    print "snapshots_name = {}".format(snapshots_name)
+    print "snapshots_size = {}".format(snapshots_size)
+    len_of_this_snapshot = snapshots_offset + 40 + extra_data_size + len_id + len_name
+    if len_of_this_snapshot % 8 != 0:
+        len_of_this_snapshot = len_of_this_snapshot + (8 - (len_of_this_snapshot % 8))
+    return len_of_this_snapshot
 
 def write_information_to_output_file(file_from, file_to):
 
