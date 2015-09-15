@@ -1,0 +1,72 @@
+[
+    {
+        "compute1.students.dev": {
+            "mem": 0.257804632289,
+            "cpu": 0.1275
+        },
+        "compute2.students.dev": {
+            "mem": 0.2289342316349446,
+            "cpu": 0.1412
+        },
+        "compute3.students.dev": {
+            "mem": 0.361127852636808,
+            "cpu": 0.0292
+        }
+    },
+    {
+        "compute1.students.dev": {
+            "mem": 0.2878046324269889,
+            "cpu": 0.1273
+        },
+        "compute2.students.dev": {
+            "mem": 0.12890231621349446,
+            "cpu": 0.1409
+        },
+        "compute3.students.dev": {
+            "mem": 0.16112789526686808,
+            "cpu": 0.027900000000000005
+        }
+    },
+    {
+        "compute1.students.dev": {
+            "mem": 0.378046324269889,
+            "cpu": 0.1292
+        },
+        "compute2.students.dev": {
+            "mem": 0.12890231621349446,
+            "cpu": 0.1373
+        },
+        "compute3.students.dev": {
+            "mem": 0.16112789526686808,
+            "cpu": 0.0268
+        }
+    },
+    {
+        "compute1.students.dev": {
+            "mem": 0.2578046324269889,
+            "cpu": 0.1272
+        },
+        "compute2.students.dev": {
+            "mem": 0.12890231621349446,
+            "cpu": 0.1393
+        },
+        "compute3.students.dev": {
+            "mem": 0.16112789526686808,
+            "cpu": 0.026600000000000002
+        }
+    },
+    {
+        "compute1.students.dev": {
+            "mem": 0.2578046324269889,
+            "cpu": 0.12960000000000002
+        },
+        "compute2.students.dev": {
+            "mem": 0.12890231621349446,
+            "cpu": 0.1389
+        },
+        "compute3.students.dev": {
+            "mem": 0.16112789526686808,
+            "cpu": 0.029900000000000003
+        }
+    }
+]
