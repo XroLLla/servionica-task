@@ -14,7 +14,9 @@ if __name__ == "__main__":
 
     event_handler = TestEventHandler()
     observer = Observer()
-    observer.schedule(event_handler, path='/home/parallels/Desktop/UntitledFolder/', recursive=False)
+    observer.schedule(event_handler,
+                      path=vizual.WATCH_DIR,
+                      recursive=False)
     observer.start()
     try:
         while True:

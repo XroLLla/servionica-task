@@ -5,16 +5,18 @@ import pylab
 import matplotlib.pyplot as plt
 import json
 
+WATCH_DIR = '/home/parallels/Desktop/task2015/'
+WATCH_FILE = 'test_data.json'
+
 
 def viz():
-    with open('/home/parallels/Desktop/UntitledFolder/test_data.json') as data_file:
+    with open(WATCH_DIR + WATCH_FILE) as data_file:
         data = json.load(data_file)
     iter_count = len(data)
-    num_iter = 0
     # column width
     width = 0.7
     # For each state of the system take static of RAM and CPU
-    for iteration in data:
+    for index, iteration in enumerate(data):
         RAM = []
         CPU = []
         c_nodes = len(iteration)
@@ -24,15 +26,16 @@ def viz():
             RAM.append(iteration[node]['mem'])
             CPU.append(iteration[node]['cpu'])
         # create windows for graphics
-        pylab.subplot(1, iter_count, num_iter+1)
+        pylab.subplot(1, iter_count, index+1)
         # Set a place for statistics CPU and RAM
-        place_holder1 = np.arange(1, len(data[num_iter])*2, 2)
-        place_holder2 = np.arange(0, len(data[num_iter])*2, 2)
+        place_holder1 = np.arange(1, len(data[index])*2, 2)
+        place_holder2 = np.arange(0, len(data[index])*2, 2)
         # Create a columnar Diagram to iterate
         ram_stat = plt.bar(place_holder1, RAM, width, color='red')
         cpu_stat = plt.bar(place_holder2, CPU, width, color='blue')
         # Title of each graphics
-        plt.title('Iteration '+str(num_iter))
+        # plt.title('22/02/2014\n15:'+str(num_iter)+"0:00")
+        plt.title('Iteration '+str(index))
         # marks on the x-axis
         plt.xticks((width+(1-width)/2)+2*node_n_list,
                    [node for node in iteration],
@@ -47,6 +50,4 @@ def viz():
                             wspace=0.3)
         # Legend for graphics
         plt.legend((ram_stat[0], cpu_stat[0]), ('RAM', 'CPU'), loc=9)
-        num_iter += 1
     plt.show()
-# viz()
